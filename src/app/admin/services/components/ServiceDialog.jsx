@@ -55,12 +55,16 @@ export default function ServiceDialog({ open, onClose, initialData = null }) {
 
     const onSubmit = async (data) => {
         try {
+
             // create new
             if (initialData) {
-                await updateService.mutateAsync({
+                const requestData = {
                     serviceId: initialData?._id,
                     ...data
-                });
+                }
+                // console.log("Submitting data:", requestData);
+
+                await updateService.mutateAsync({ data: requestData });
 
                 onClose();
                 return;

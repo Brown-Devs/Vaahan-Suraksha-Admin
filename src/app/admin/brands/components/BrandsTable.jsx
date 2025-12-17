@@ -9,10 +9,12 @@ import Switch from "@mui/material/Switch";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Image from "next/image";
 import TableSkeleton2 from "@/components/shared/TableSkeleton2";
+import { useBrands } from "@/hooks/useBrands";
 
 export default function BrandsTable({ apiData, onPageChange, limit, setLimit, dataLoading, onEdit }) {
     const [anchorEl, setAnchorEl] = useState(null);
     const [menuRow, setMenuRow] = useState(null);
+    const { updateBrand } = useBrands();
 
     const handleMenuOpen = (event, row) => {
         setAnchorEl(event.currentTarget);
@@ -26,6 +28,19 @@ export default function BrandsTable({ apiData, onPageChange, limit, setLimit, da
 
     const page = apiData?.pagination?.page || 1;
     const pageLimit = apiData?.pagination?.limit || limit || 25;
+
+    const handleActiveToggle = async (brandId, status) => {
+        try {
+            // Call API to update active status
+            const data = {
+                brandId,
+                active: status
+            }
+            await updateBrand.mutateAsync({ data });
+        } catch (error) {
+            console.error(error);
+        }
+    }
 
     return (
         <div>
@@ -73,6 +88,7 @@ export default function BrandsTable({ apiData, onPageChange, limit, setLimit, da
                                                 onChange={(e) => {
                                                     console.log("Toggled", brand._id, e.target.checked);
                                                     // optional: call updateBrand mutation for optimistic update
+                                                    handleActiveToggle(brand?._id, e?.target?.checked);
                                                 }}
                                                 color="primary"
                                             />

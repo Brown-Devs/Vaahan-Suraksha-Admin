@@ -9,10 +9,12 @@ import {
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import TableSkeleton2 from "@/components/shared/TableSkeleton2";
 import { formatDateWithTime } from "@/lib/services/dateFormat";
+import useOneTimePlans from "@/hooks/useOneTimePlans";
 
 export default function OtpTable({ apiData, onPageChange, limit, setLimit, dataLoading, onEdit }) {
     const [anchorEl, setAnchorEl] = useState(null);
     const [menuRow, setMenuRow] = useState(null);
+    const { updateOneTimePlan } = useOneTimePlans();
 
     const handleMenuOpen = (event, row) => {
         setAnchorEl(event.currentTarget);
@@ -25,6 +27,19 @@ export default function OtpTable({ apiData, onPageChange, limit, setLimit, dataL
     };
 
     const rows = apiData?.plans || [];
+
+    const handleActiveToggle = async (planId, status) => {
+        try {
+            // Call API to update active status
+            const data = {
+                planId,
+                active: status
+            }
+            await updateOneTimePlan.mutateAsync({ data });
+        } catch (error) {
+            console.error(error);
+        }
+    }
 
     return (
         <div>
@@ -83,6 +98,7 @@ export default function OtpTable({ apiData, onPageChange, limit, setLimit, dataL
                                             checked={plan?.active}
                                             onChange={(e) => {
                                                 // API call to toggle active status
+                                                handleActiveToggle(plan?._id, e?.target?.checked);
                                             }}
                                             color="primary"
                                         />

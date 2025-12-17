@@ -9,11 +9,13 @@ import Switch from "@mui/material/Switch";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Image from "next/image";
 import TableSkeleton2 from "@/components/shared/TableSkeleton2";
+import { useProducts } from "@/hooks/useProducts";
 
-export default function ProductsTable({ apiData, onPageChange, limit, setLimit, dataLoading, onEdit, onAddStock  }) {
-    console.log(apiData)
+export default function ProductsTable({ apiData, onPageChange, limit, setLimit, dataLoading, onEdit, onAddStock }) {
+    // console.log(apiData)
     const [anchorEl, setAnchorEl] = useState(null);
     const [menuRow, setMenuRow] = useState(null);
+    const { updateProduct } = useProducts();
 
     const handleMenuOpen = (event, row) => {
         setAnchorEl(event.currentTarget);
@@ -24,6 +26,19 @@ export default function ProductsTable({ apiData, onPageChange, limit, setLimit, 
         setAnchorEl(null);
         setMenuRow(null);
     };
+
+    const handleActiveToggle = async (productId, status) => {
+        try {
+            // Call API to update active status
+            const data = {
+                productId: productId,
+                active: status
+            }
+            await updateProduct.mutateAsync({ data });
+        } catch (error) {
+            console.error(error);
+        }
+    }
 
     return (
         <div>
@@ -79,6 +94,7 @@ export default function ProductsTable({ apiData, onPageChange, limit, setLimit, 
                                             onChange={(e) => {
                                                 console.log("Toggled", product?._id, e.target.checked);
                                                 // API call to toggle active status
+                                                handleActiveToggle(product?._id, e?.target?.checked);
                                             }}
                                             color="primary"
                                         />

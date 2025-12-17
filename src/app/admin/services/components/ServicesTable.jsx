@@ -10,10 +10,12 @@ import Switch from "@mui/material/Switch";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Image from "next/image";
 import TableSkeleton2 from "@/components/shared/TableSkeleton2";
+import { useServices } from "@/hooks/useServices";
 
 export default function ServicesTable({ apiData, onPageChange, limit, setLimit, dataLoading, onEdit }) {
     const [anchorEl, setAnchorEl] = useState(null);
     const [menuRow, setMenuRow] = useState(null);
+    const { updateService } = useServices();
 
     const handleMenuOpen = (event, row) => {
         setAnchorEl(event.currentTarget);
@@ -24,6 +26,19 @@ export default function ServicesTable({ apiData, onPageChange, limit, setLimit, 
         setAnchorEl(null);
         setMenuRow(null);
     };
+
+    const handleActiveToggle = async (serviceId, status) => {
+        try {
+            // Call API to update active status
+            const data = {
+                serviceId: serviceId,
+                active: status
+            }
+            await updateService.mutateAsync({ data });
+        } catch (error) {
+            console.error(error);
+        }
+    }
 
     return (
         <div>
@@ -63,6 +78,7 @@ export default function ServicesTable({ apiData, onPageChange, limit, setLimit, 
                                             onChange={(e) => {
                                                 console.log("Toggled", service._id, e.target.checked);
                                                 // you can call an API here to update status
+                                                handleActiveToggle(service?._id, e?.target?.checked);
                                             }}
                                             color="primary"
                                         />

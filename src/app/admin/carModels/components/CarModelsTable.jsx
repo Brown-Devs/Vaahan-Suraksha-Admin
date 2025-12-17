@@ -9,10 +9,12 @@ import Switch from "@mui/material/Switch";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Image from "next/image";
 import TableSkeleton2 from "@/components/shared/TableSkeleton2";
+import { useCarModels } from "@/hooks/useCarModels";
 
 export default function CarModelsTable({ apiData, onPageChange, limit, setLimit, dataLoading, onEdit }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const [menuRow, setMenuRow] = useState(null);
+  const { updateCarModel } = useCarModels();
 
   const handleMenuOpen = (event, row) => {
     setAnchorEl(event.currentTarget);
@@ -28,6 +30,19 @@ export default function CarModelsTable({ apiData, onPageChange, limit, setLimit,
   const pageLimit = apiData?.pagination?.limit ?? limit;
   const totalCount = apiData?.totalCount ?? 0;
   const rows = Array.isArray(apiData?.carModels) ? apiData.carModels : [];
+
+  const handleActiveToggle = async (carModelId, status) => {
+    try {
+      // Call API to update active status
+      const data = {
+        carModelId,
+        active: status
+      }
+      await updateCarModel.mutateAsync({ data });
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   return (
     <div>
@@ -75,6 +90,7 @@ export default function CarModelsTable({ apiData, onPageChange, limit, setLimit,
                         onChange={(e) => {
                           console.log("Toggled", carModel?._id, e.target.checked);
                           // TODO: call toggle mutation
+                          handleActiveToggle(carModel?._id, e?.target?.checked);
                         }}
                         color="primary"
                       />
